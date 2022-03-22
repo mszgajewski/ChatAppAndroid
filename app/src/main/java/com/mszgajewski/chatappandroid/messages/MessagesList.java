@@ -6,23 +6,19 @@ public class MessagesList {
     private String name;
     private String mobile;
     private String profilePic;
+    private String chatKey;
     private int unseenMessages;
 
-    public String getProfilePic() {
-        return profilePic;
-    }
-
-    public MessagesList(String profilePic, String lastMessage, String name, String mobile, int unseenMessages) {
+    public MessagesList(String name, String mobile, String lastMessage, String profilePic, int unseenMessages, String chatKey) {
         this.lastMessage = lastMessage;
         this.name = name;
         this.mobile = mobile;
         this.unseenMessages = unseenMessages;
         this.profilePic = profilePic;
+        this.chatKey = chatKey;
     }
 
-    public String getLastMessage() {
-        return lastMessage;
-    }
+    public String getLastMessage() { return lastMessage; }
 
     public String getName() {
         return name;
@@ -31,6 +27,10 @@ public class MessagesList {
     public String getMobile() {
         return mobile;
     }
+
+    public String getProfilePic() { return profilePic; }
+
+    public String getChatKey() { return chatKey; }
 
     public int getUnseenMessages() {
         return unseenMessages;
