@@ -20,15 +20,25 @@ import com.mszgajewski.chatappandroid.MemoryData;
 import com.mszgajewski.chatappandroid.R;
 import com.squareup.picasso.Picasso;
 
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class Chat extends AppCompatActivity {
 
     DatabaseReference databaseReference = FirebaseDatabase.getInstance()
             .getReferenceFromUrl("https://chatappandroid-f064c-default-rtdb.europe-west1.firebasedatabase.app/");
+    private final List<ChatList> chatLists = new ArrayList<>();
     private String chatKey;
-    String getUserMoblie = "";
+    String getUserMobile = "";
     private RecyclerView chattingRecyclerView;
+    private ChatAdapter chatAdapter;
+    private boolean loadingFirstTime = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,7 +57,7 @@ public class Chat extends AppCompatActivity {
         chatKey = getIntent().getStringExtra("chat_key");
         final String getMobile = getIntent().getStringExtra("mobile");
 
-        getUserMoblie = MemoryData.getData(Chat.this);
+        getUserMobile = MemoryData.getData(Chat.this);
 
         nameTV.setText(getName);
         Picasso.get().load(getProfilePic).into(profilePic);
@@ -55,14 +65,51 @@ public class Chat extends AppCompatActivity {
         chattingRecyclerView.setHasFixedSize(true);
         chattingRecyclerView.setLayoutManager(new LinearLayoutManager(Chat.this));
 
-        if (chatKey.isEmpty()){
-            databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+        chatAdapter = new ChatAdapter(chatLists,Chat.this);
+        chattingRecyclerView.setAdapter(chatAdapter);
+
+            databaseReference.addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
 
-                    chatKey = "1";
-                    if (snapshot.hasChild("chat")){
-                        chatKey = String.valueOf(snapshot.child("chat").getChildrenCount()+1);
+                    if (chatKey.isEmpty()) {
+                        chatKey = "1";
+                        if (snapshot.hasChild("chat")) {
+                            chatKey = String.valueOf(snapshot.child("chat").getChildrenCount() + 1);
+                        }
+                    }
+
+                    if (snapshot.hasChild("chat")) {
+                        if (snapshot.child("chat").child(chatKey).hasChild("messages")) {
+                            chatLists.clear();
+                            for (DataSnapshot messageSnapshot : snapshot.child("chat").child(chatKey).child("messages").getChildren()) {
+
+                                if (messageSnapshot.hasChild("msg") && messageSnapshot.hasChild("mobile")) {
+                                    final String messageTimestamps = messageSnapshot.getKey();
+                                    final String getMobile = messageSnapshot.child("mobile").getValue(String.class);
+                                    final String getMsg = messageSnapshot.child("msg").getValue(String.class);
+
+                                    Timestamp timestamp = new Timestamp(Long.parseLong(messageTimestamps));
+                                    Date date = new Date(timestamp.getTime());
+                                    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault());
+                                    SimpleDateFormat simpleTimeFormat = new SimpleDateFormat("hh:mm aa", Locale.getDefault());
+
+                                    ChatList chatList = new ChatList(getMobile,getName,getMsg, simpleDateFormat.format(date), simpleTimeFormat.format(date));
+                                    chatLists.add(chatList);
+
+                                    if (loadingFirstTime || Long.parseLong(messageTimestamps) > Long.parseLong(MemoryData.getLastMsgTS(Chat.this, chatKey))){
+
+                                        loadingFirstTime = false;
+
+                                        MemoryData.saveLastMsgTS(messageTimestamps,chatKey,Chat.this);
+                                        chatAdapter.updateChatList(chatLists);
+
+                                        chattingRecyclerView.scrollToPosition(chatLists.size() - 1);
+
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
 
@@ -71,7 +118,6 @@ public class Chat extends AppCompatActivity {
 
                 }
             });
-        }
 
         sendBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -81,12 +127,10 @@ public class Chat extends AppCompatActivity {
 
                 final String currentTimestamp = String.valueOf(System.currentTimeMillis()).substring(0,10);
 
-                MemoryData.saveLastMsgTS(currentTimestamp,chatKey,Chat.this);
-
-                databaseReference.child("chat").child(chatKey).child("user_1").setValue(getUserMoblie);
+                databaseReference.child("chat").child(chatKey).child("user_1").setValue(getUserMobile);
                 databaseReference.child("chat").child(chatKey).child("user_2").setValue(getMobile);
                 databaseReference.child("chat").child(chatKey).child("messages").child(currentTimestamp).child("msg").setValue(getTxtMessage);
-                databaseReference.child("chat").child(chatKey).child("messages").child(currentTimestamp).child("mobile").setValue(getUserMoblie);
+                databaseReference.child("chat").child(chatKey).child("messages").child(currentTimestamp).child("mobile").setValue(getUserMobile);
 
                 messageEditText.setText("");
             }

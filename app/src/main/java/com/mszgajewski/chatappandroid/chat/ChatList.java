@@ -2,11 +2,11 @@ package com.mszgajewski.chatappandroid.chat;
 
 public class ChatList {
 
-    private String mobile;
-    private String name;
-    private String message;
-    private String date;
-    private String time;
+    private final String mobile;
+    private final String name;
+    private final String message;
+    private final String date;
+    private final String time;
 
     public ChatList(String mobile, String name, String message, String date, String time) {
         this.mobile = mobile;

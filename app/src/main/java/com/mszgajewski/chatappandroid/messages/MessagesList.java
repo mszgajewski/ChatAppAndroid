@@ -2,12 +2,12 @@ package com.mszgajewski.chatappandroid.messages;
 
 public class MessagesList {
 
-    private String lastMessage;
-    private String name;
-    private String mobile;
-    private String profilePic;
-    private String chatKey;
-    private int unseenMessages;
+    private final String lastMessage;
+    private final String name;
+    private final String mobile;
+    private final String profilePic;
+    private final String chatKey;
+    private final int unseenMessages;
 
     public MessagesList(String name, String mobile, String lastMessage, String profilePic, int unseenMessages, String chatKey) {
         this.lastMessage = lastMessage;

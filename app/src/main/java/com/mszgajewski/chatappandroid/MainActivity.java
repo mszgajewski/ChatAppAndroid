@@ -65,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
         progressDialog.setMessage("ładowanie...");
         progressDialog.show();
 
-        databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+        databaseReference.addValueEventListener(new ValueEventListener() {
 
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -85,7 +85,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+        databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
 
@@ -133,7 +133,6 @@ public class MainActivity extends AppCompatActivity {
                                                  }
                                              }
                                          }
-
                                      }
                                  }
 

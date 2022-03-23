@@ -86,11 +86,11 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.MyView
 
     static class MyViewHolder extends RecyclerView.ViewHolder {
 
-        private CircleImageView profilePic;
-        private TextView name;
-        private TextView lastMessage;
-        private TextView unseenMessages;
-        private LinearLayout rootLayout;
+        private final CircleImageView profilePic;
+        private final TextView name;
+        private final TextView lastMessage;
+        private final TextView unseenMessages;
+        private final LinearLayout rootLayout;
 
         public MyViewHolder(@NonNull View itemView) {
             super(itemView);
